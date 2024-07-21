@@ -269,9 +269,9 @@
                 });
             }
             function p() {
-                document.querySelectorAll("[onclick]").forEach(btn => {
+                document.querySelectorAll("button[onclick]").forEach(btn => {
                     let onclickValue = btn.getAttribute('onclick');
-                    const urlMatch = onclickValue.match(/window\.open\s*\(\s*['"`](.*?)['"`]\s*,/);
+                    const urlMatch = onclickValue.match(/'(https?:\/\/[^']+)'/)
                     if (urlMatch && urlMatch[1]) {
                         let url = urlMatch[1];
                         url = s.addUtmParametersToUrl(url);
@@ -279,6 +279,18 @@
                     }
                 });
             }
+            // Atualizar botões com onclick
+            //var buttons = document.querySelectorAll("button[onclick]");
+                //buttons.forEach(function(button) {
+                    //var onclickValue = button.getAttribute("onclick");
+                   // var urlMatch = onclickValue.match(/'(https?:\/\/[^']+)'/);
+                    //if (urlMatch) {
+                       // var url = urlMatch[1];
+                       // var newUrl = url.includes('?') ? url + "&" + param : url + "?" + param;
+                      //  button.setAttribute("onclick", onclickValue.replace(url, newUrl));
+                   // }
+                //});
+          //  }
             !function() {
                 const e = new URLSearchParams(window.location.search);
                 window.paramsList.forEach(t => {

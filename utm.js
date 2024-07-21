@@ -93,7 +93,7 @@
     }
     (() => {
         const e = n(202);
-        console.log("utms script loaded! 2.3.11");
+        console.log("utms script loaded! 2.3.12");
         const t = !!document.querySelector("[data-utmify-ignore-iframe]"),
             o = !!document.querySelector("[data-utmify-ignore-retry]");
         var r, i;
@@ -112,9 +112,8 @@
                     r = new URLSearchParams();
                 n.forEach((e, t) => r.append(t, e)), o.forEach((e, t) => r.append(t, e));
                 const i = s.urlParametersWithoutDuplicates(r),
-                    a = s.simplifyParametersIfNecessary(t, i),
-                    c = -1 === t.indexOf("?") ? "?" : "&";
-                return `${t}${c}${a.toString()}`;
+                    a = -1 === t.indexOf("?") ? "?" : "&";
+                return `${t}${a}${i.toString()}`;
             }
             static urlWithoutParams(e) {
                 return e.split("?")[0];
@@ -182,22 +181,30 @@
                 const h = r("xcod"),
                     f = r("src"),
                     g = "" !== h ? h : f,
-                    y = (function (e, o) {
-                        if (e.length <= 2) return !1;
-                        if (t.includes("!")) return !0;
-                        const r = ["utm_campaign", "utm_content", "utm_term"],
-                            i = a.every((e) => t.includes(e)),
-                            s = e.length >= 1 && e.length <= 3 && e.every((e) => r.includes(e));
-                        if (i) return !0;
-                        if (s) return !1;
-                        const c = e.length > 2 && e.length <= 4,
+                    y = (function (e, t) {
+                        return !(!t.length || t.some((e) => e.length < 1) || t.includes("") || t.includes("utm_"));
+                    })(p, a);
+                if (g && (e.includes("doppus.com") || e.includes("doppus.net") || e.includes("doppus.dev"))) {
+                    const t = (function (e, t) {
+                        if (!e) return !1;
+                        const n = Array.from(e);
+                        if (n.length > 0) return t.includes(n[0]);
+                        const o = n.slice(1, 4),
+                            r = [e[0]];
+                        if (r[0] === "utm_source" && o.length >= 2) {
+                            if (o.every((e) => e.startsWith("utm_") || e.includes("utm_"))) return !1;
+                        }
+                        const i = o.length === 1 && t.includes(o[0]),
+                            s = o.length === 2 && t.includes(o[0]) && t.includes(o[1]),
+                            c = o.length === 3 && t.includes(o[0]) && t.includes(o[1]) && t.includes(o[2]),
                             l = (function (e, t) {
                                 return e.length > 2 && e.includes(t[0]) && e.includes(t[1]) && e.includes(t[2]);
-                            })(e, r);
-                        return c || l;
+                            })(t, r);
+                        return i || s || c || l;
                     })(o.getAll("utm_campaign"), p)
                         ? g
                         : "desktop";
+                }
                 return m.set("utm_content", `${y}|${w}`), m;
             }
             static simplifyParametersIfNecessary(e, t) {
@@ -221,12 +228,12 @@
                 const e = document.querySelectorAll("[onclick]");
                 e.forEach((element) => {
                     const originalOnClick = element.getAttribute("onclick");
-                    element.setAttribute("onclick", function () {
-                        const utmParams = s.getUtmParameters();
-                        const urlWithUtm = s.addUtmParametersToUrl(window.location.href);
-                        const newOnClick = originalOnClick.replace(/(http[s]?:\/\/[^\s]+)/g, urlWithUtm);
-                        return new Function(newOnClick).apply(this, arguments);
-                    });
+                    if (originalOnClick) {
+                        const newOnClick = originalOnClick.replace(/(http[s]?:\/\/[^\s"')]+)/g, (url) => {
+                            return s.addUtmParametersToUrl(url);
+                        });
+                        element.setAttribute("onclick", newOnClick);
+                    }
                 });
             }
             static observeInputElements() {
@@ -237,7 +244,9 @@
             }
         }
         function c() {
-            o || (s.observeLinkElements(), s.observeInputElements(), s.observeOnClickElements());
+            s.observeLinkElements();
+            s.observeInputElements();
+            s.observeOnClickElements();
         }
         document.addEventListener("DOMContentLoaded", c),
             t ||

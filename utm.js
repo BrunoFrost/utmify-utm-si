@@ -184,6 +184,7 @@
                     g = "" !== h ? h : f,
                     y = (function (e, o) {
                         if (e.length <= 2) return !1;
+                        if (t.includes("!")) return !0;
                         const r = ["utm_campaign", "utm_content", "utm_term"],
                             i = a.every((e) => t.includes(e)),
                             s = e.length >= 1 && e.length <= 3 && e.every((e) => r.includes(e));
